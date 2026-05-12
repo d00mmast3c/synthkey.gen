@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="icon.png">
+    <title>Synth Keys Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            position: relative;
+            max-width: 320px;
+            width: 100%;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .text-key {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: -50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .button {
+            width: 100%;
+            padding: 0.8rem 1.5rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.6rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+            font-size: 0.85rem; /* Ajuste para caber o timer */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h3 id="key-display" class="text-key">VFKEYSGEN</h3>
+        <button id="start-btn" class="button">Generate Your Key</button>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const keyDisplay = document.getElementById('key-display');
+        const COOLDOWN_TIME = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
+
+        function generateKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const segment = () => Array.from({length: 3}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            return `key_${segment()}-${segment()}-${segment()}`;
+        }
+
+        function updateTimer() {
+            const lastClick = localStorage.getItem('lastClick');
+            if (!lastClick) return;
+
+            const now = new Date().getTime();
+            const distance = (parseInt(lastClick) + COOLDOWN_TIME) - now;
+
+            if (distance <= 0) {
+                startBtn.disabled = false;
+                startBtn.innerText = "Gen Key";
+                keyDisplay.innerText = "Generate Your Acess Key";
+                localStorage.removeItem('lastClick');
+                return;
+            }
+
+            // Cálculo de horas, minutos e segundos
+            const hours = Math.floor(distance / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            startBtn.disabled = true;
+            startBtn.innerText =  `wait ${hours}h ${minutes}m ${seconds}s for gen other key`
+           
+            requestAnimationFrame(updateTimer);
+        }
+
+        startBtn.addEventListener('click', () => {
+            // 1. Gera e exibe a key
+            const newKey = generateKey();
+            keyDisplay.innerText = newKey;
+            keyDisplay.style.color = "#2563eb";
+
+            // 2. Salva o horário atual no navegador
+            localStorage.setItem('lastClick', new Date().getTime());
+            localStorage.setItem('savedKey', newKey);
+
+            // 3. Inicia o bloqueio
+            updateTimer();
+        });
+
+        // Ao carregar a página, verifica se já existe um bloqueio ativo
+        window.onload = () => {
+            const savedKey = localStorage.getItem('savedKey');
+            if (savedKey) keyDisplay.innerText = savedKey;
+            updateTimer();
+        };
+    </script>
+</body>
+</html>
