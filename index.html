@@ -58,21 +58,21 @@
         .button:disabled {
             background-color: #94a3b8;
             cursor: not-allowed;
-            font-size: 0.85rem; /* Ajuste para caber o timer */
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h3 id="key-display" class="text-key">VFKEYSGEN</h3>
+        <h3 id="key-display" class="text-key">SynthKeys.Gen</h3>
         <button id="start-btn" class="button">Generate Your Key</button>
     </div>
 
     <script>
         const startBtn = document.getElementById('start-btn');
         const keyDisplay = document.getElementById('key-display');
-        const COOLDOWN_TIME = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
+        const COOLDOWN_TIME = 24 * 60 * 60 * 1000;
 
         function generateKey() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -95,7 +95,6 @@
                 return;
             }
 
-            // Cálculo de horas, minutos e segundos
             const hours = Math.floor(distance / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -107,20 +106,16 @@
         }
 
         startBtn.addEventListener('click', () => {
-            // 1. Gera e exibe a key
             const newKey = generateKey();
             keyDisplay.innerText = newKey;
             keyDisplay.style.color = "#2563eb";
 
-            // 2. Salva o horário atual no navegador
             localStorage.setItem('lastClick', new Date().getTime());
             localStorage.setItem('savedKey', newKey);
 
-            // 3. Inicia o bloqueio
             updateTimer();
         });
 
-        // Ao carregar a página, verifica se já existe um bloqueio ativo
         window.onload = () => {
             const savedKey = localStorage.getItem('savedKey');
             if (savedKey) keyDisplay.innerText = savedKey;
